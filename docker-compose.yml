@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: bankrest-db
+    environment:
+      POSTGRES_DB: bankrest
+      POSTGRES_USER: bankrest
+      POSTGRES_PASSWORD: bankrest
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Named volume for persistence
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro # Optional init scripts
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U bankrest -d bankrest" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - bankrest-network
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bankrest-app
+    environment:
+      # Spring Boot Configuration
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bankrest
+      SPRING_DATASOURCE_USERNAME: bankrest
+      SPRING_DATASOURCE_PASSWORD: bankrest
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+
+      # JWT Configuration (from your properties)
+      APPLICATION_SECURITY_JWT_SECRET_KEY: 4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c
+      APPLICATION_SECURITY_JWT_ACCESS_TOKEN_EXPIRATION: 86400000
+      APPLICATION_SECURITY_JWT_REFRESH_TOKEN_EXPIRATION: 604800000
+
+volumes:
+  postgres_data:
+    name: bankrest-postgres-data
+
+networks:
+  bankrest-network:
+    # This will be created automatically
+    driver: bridge
