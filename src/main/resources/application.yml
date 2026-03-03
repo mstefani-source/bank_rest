@@ -9,6 +9,10 @@
 
 
 spring:
+  # config:
+  #   activate:
+  #     on-profile: dev
+
   application:
     name: bankrest
   
@@ -27,4 +31,10 @@ application:
       access-token-expiration: 86400000
       refresh-token-expiration: 604800000
 
-
+logging:
+  level:
+    root: INFO
+    com.example.bankcards: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

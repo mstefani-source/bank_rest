@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch with Dev Profile",
+            "request": "launch",
+            "mainClass": "com.example.bankcards.BankCardsApplication", 
+            "projectName": "bankrest", 
+            "args": "--spring.profiles.active=dev",
+            "vmArgs": "-Dspring.profiles.active=dev",
+            "env": {
+                "SPRING_PROFILES_ACTIVE": "dev",
+                "LOG_LEVEL": "DEBUG"
+            },
+            "console": "internalConsole"
+        }
+    ]
+}
