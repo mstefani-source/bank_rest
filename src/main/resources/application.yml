@@ -9,9 +9,9 @@
 
 
 spring:
-  # config:
-  #   activate:
-  #     on-profile: dev
+  config:
+    activate:
+      on-profile: dev
 
   application:
     name: bankrest

@@ -6,7 +6,6 @@ import com.example.bankcards.entity.Customer;
 import com.example.bankcards.entity.mapper.CustomerMapper;
 import com.example.bankcards.repository.CustomerRepository;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -18,11 +17,13 @@ import java.util.Optional;
 @Log4j2
 public class CustomerService {
 
-    @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
+    private CustomerMapper customerMapper;
 
-    @Autowired
-    CustomerMapper customerMapper;
+    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper){
+        this.customerRepository = customerRepository;
+        this.customerMapper = customerMapper;
+    }
 
     public CustomerDto createCustomer(CustomerDto customerDto) {
 

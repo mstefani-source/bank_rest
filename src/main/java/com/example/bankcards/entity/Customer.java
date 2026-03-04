@@ -2,6 +2,9 @@ package com.example.bankcards.entity;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.bankcards.entity.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -35,5 +38,9 @@ public class Customer  {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.ROLE_USER;
+
+    @Column
+    @OneToMany(mappedBy =  "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BankCard> cards = new ArrayList<>();
 
 }

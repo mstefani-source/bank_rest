@@ -19,6 +19,9 @@ services:
     networks:
       - bankrest-network
   app:
+    depends_on:
+      postgres:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
@@ -38,6 +41,10 @@ services:
       APPLICATION_SECURITY_JWT_SECRET_KEY: 4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c
       APPLICATION_SECURITY_JWT_ACCESS_TOKEN_EXPIRATION: 86400000
       APPLICATION_SECURITY_JWT_REFRESH_TOKEN_EXPIRATION: 604800000
+    ports:
+      - "8080:8080"
+    networks:
+      - bankrest-network
 
 volumes:
   postgres_data:
