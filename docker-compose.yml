@@ -52,5 +52,4 @@ volumes:
 
 networks:
   bankrest-network:
-    # This will be created automatically
     driver: bridge

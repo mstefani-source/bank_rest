@@ -42,5 +42,4 @@ public class Customer  {
     @Column
     @OneToMany(mappedBy =  "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BankCard> cards = new ArrayList<>();
-
 }

@@ -1,7 +1,9 @@
 package com.example.bankcards.repository;
 
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.bankcards.entity.BankCard;
@@ -15,5 +17,6 @@ import com.example.bankcards.entity.BankCard;
 */ 
 
 public interface CardRepository extends JpaRepository<BankCard, Long> {
-    List<BankCard> findBycardNumber(Long cardNumber);    
+    Optional<BankCard> findByCardNumber(Long cardNumber);
+    BigDecimal findByBalance(Long cardNumber);
 }
