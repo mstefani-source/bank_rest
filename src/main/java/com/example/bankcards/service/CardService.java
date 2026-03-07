@@ -1,10 +1,15 @@
 package com.example.bankcards.service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+
+import com.example.bankcards.dto.BankCardDto;
 import com.example.bankcards.entity.BankCard;
 import com.example.bankcards.entity.enums.CardStatus;
+import com.example.bankcards.entity.mapper.CardMapper;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.InsufficientFundsException;
 import com.example.bankcards.repository.CardRepository;
@@ -14,12 +19,15 @@ import com.example.bankcards.repository.CardRepository;
 // - Делает переводы между своими картами
 // - Смотрит баланс
 
+@Service
 public class CardService {
 
     private final CardRepository cardRepository;
+    private final CardMapper cardMapper;
 
-    public CardService(CardRepository cardRepository) {
+    public CardService(CardRepository cardRepository, CardMapper cardMapper) {
         this.cardRepository = cardRepository;
+        this.cardMapper = cardMapper;
     }
 
     public BigDecimal updateBalance(Long cardNumber, BigDecimal amount) {
@@ -46,6 +54,27 @@ public class CardService {
                 .orElseThrow(() -> new CardNotFoundException(cardNumber));
 
         return card.getBalance();
+    }
+
+    public void delete(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
+
+    public Page<BankCardDto> findAll(Long customerId, Pageable pageable) {
+
+        // if (customerId == null) { 
+        //     return Page.empty(pageable);
+        // }
+        
+        Page<BankCard> cards = cardRepository.findByCustomerId(customerId, pageable);
+
+        return cards.map(cardMapper::toDto);
+    }
+
+    public BankCardDto create(BankCardDto request) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'create'");
     }
 
 }

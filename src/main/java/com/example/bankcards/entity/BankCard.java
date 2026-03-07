@@ -64,4 +64,9 @@ public class BankCard {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    public String getNumber() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getNumber'");
+    }
 }
