@@ -10,7 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data # Named volume for persistence
-      - ./docker/postgres/init/init.sql:/docker-entrypoint-initdb.d/init.sql # Optional init scripts
+      # - ./docker/postgres/init/init.sql:/docker-entrypoint-initdb.d/init.sql # Optional init scripts (handled by Liquibase now)
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U bankrest -d bankrest" ]
       interval: 5s

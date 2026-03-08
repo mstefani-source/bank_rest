@@ -168,6 +168,13 @@
             <artifactId>httpclient5</artifactId>
             <version>5.4.3</version>
         </dependency>
+        <!-- Spring Boot no longer publishes a dedicated starter after 3.4;
+             the BOM still manages liquibase-core. add the core library directly: -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <!-- version inherited from spring-boot-dependencies BOM -->
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

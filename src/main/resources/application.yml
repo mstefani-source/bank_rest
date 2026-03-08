@@ -9,6 +9,9 @@
 
 
 spring:
+  liquibase:
+    change-log: classpath:db/migration/db.changelog-master.xml
+
   config:
     activate:
       on-profile: dev
@@ -20,6 +23,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/bankrest
     username: bankrest
     password: bankrest
+
 
 server:
   port: 8080
