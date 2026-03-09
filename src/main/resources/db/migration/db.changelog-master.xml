@@ -1,57 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
 
     <changeSet id="1-create-customers" author="ivanov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="customers" />
+            </not>
+        </preConditions>
         <createTable tableName="customers">
             <column name="id" type="BIGSERIAL">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false" />
             </column>
             <column name="name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" />
             </column>
             <column name="email" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="false" unique="true" />
             </column>
             <column name="password" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" />
             </column>
-            <column name="role" type="VARCHAR(50)" defaultValue="'ROLE_USER'"/>
-            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
-            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="role" type="VARCHAR(50)" defaultValue="'ROLE_USER'" />
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP" />
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP" />
         </createTable>
 
         <createIndex indexName="idx_customers_email" tableName="customers">
-            <column name="email"/>
+            <column name="email" />
         </createIndex>
-
-        <sql>GRANT ALL PRIVILEGES ON TABLE customers TO bankrest;</sql>
-        <sql>GRANT USAGE, SELECT ON SEQUENCE customers_id_seq TO bankrest;</sql>
+        <comment>Created customers table and email index</comment>
     </changeSet>
 
+    <changeSet id="2-grant-customers-permissions" author="ivanov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="customers"/>
+        </preConditions>
+        
+        <sql dbms="postgresql">
+            GRANT ALL PRIVILEGES ON TABLE customers TO bankrest;
+        </sql>
+        <sql dbms="postgresql">
+            GRANT USAGE, SELECT ON SEQUENCE customers_id_seq TO bankrest;
+        </sql>
+        
+        <comment>Granted permissions on customers table and sequence</comment>
+    </changeSet>
+
+
     <changeSet id="2-create-bankcards" author="ivanov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bankcards" />
+            </not>
+        </preConditions>
         <createTable tableName="bankcards">
             <column name="id" type="BIGSERIAL">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false" />
             </column>
             <column name="card_number" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="false" unique="true" />
             </column>
             <column name="balance" type="DECIMAL(19,2)" defaultValueNumeric="0.00">
-                <constraints nullable="false"/>
+                <constraints nullable="false" />
             </column>
             <column name="customer_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_bankcards_customer"
-                             referencedTableName="customers" referencedColumnNames="id"/>
+                    referencedTableName="customers" referencedColumnNames="id" />
             </column>
-            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
-            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP" />
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP" />
         </createTable>
+        <comment>Created bankcards table</comment>
+     </changeSet>
 
-        <sql>GRANT ALL PRIVILEGES ON TABLE bankcards TO bankrest;</sql>
+    <changeSet id="4-grant-bankcards-permissions" author="ivanov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="bankcards"/>
+        </preConditions>
+        
+        <sql dbms="postgresql">
+            GRANT ALL PRIVILEGES ON TABLE bankcards TO bankrest;
+        </sql>
+        <sql dbms="postgresql">
+            GRANT USAGE, SELECT ON SEQUENCE bankcards_id_seq TO bankrest;
+        </sql>
+        
+        <comment>Granted permissions on bankcards table and sequence</comment>
     </changeSet>
+
 
 </databaseChangeLog>
