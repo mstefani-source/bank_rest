@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class CustomerDto implements UserDetails {
+public class CardHolderDto implements UserDetails {
     private Long id;
     private String name;
     private String email;
@@ -23,7 +23,7 @@ public class CustomerDto implements UserDetails {
     @Builder.Default
     private Role role = Role.ROLE_USER;
 
-    public CustomerDto(Long customerId, String username, String email, Role role) {
+    public CardHolderDto(Long customerId, String username, String email, Role role) {
         this.id = customerId;
         this.name = username;
         this.email = email;

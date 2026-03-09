@@ -33,9 +33,9 @@ public class CardController {
         return cardService.create(cardDto);
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
-        cardService.delete(id);
+    @DeleteMapping("{cardNumber}")
+    public ResponseEntity<Void> deleteCard(@PathVariable String cardNumber) {
+        cardService.delete(cardNumber);
         return ResponseEntity.noContent().build();
     }
 

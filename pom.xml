@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.5</version>
-        <relativePath/>
+        <relativePath />
     </parent>
     <groupId>com.exapmle</groupId>
     <artifactId>bankrest</artifactId>
@@ -22,9 +23,38 @@
         <hibernate.version>6.1.7.Final</hibernate.version>
         <jackson.version>2.19</jackson.version>
         <jwt.security.version>0.12.3</jwt.security.version>
+        <mockito.version>5.15.2</mockito.version>
         <skipTests>true</skipTests>
     </properties>
-
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>env</name>
+                    <value>dev</value>
+                </property>
+            </activation>
+            <properties>
+                <skipTests>false</skipTests>
+                <testProfile>dev</testProfile>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>prod</value>
+                </property>
+            </activation>
+            <properties>
+                <skipTests>true</skipTests>
+                <testProfile>prod</testProfile>
+            </properties>
+        </profile>
+    </profiles>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -90,10 +120,10 @@
         </dependency>
 
         <!-- Jedis (Redis client) -->
-        <dependency>
+        <!-- <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-        </dependency>
+        </dependency> -->
 
         <!-- Optional: For JSON serialization -->
         <dependency>
@@ -151,6 +181,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>${mockito.version}</version>
+    <scope>test</scope>
+</dependency>
+
         <!-- Run Tests using RestAssured -->
         <dependency>
             <groupId>io.rest-assured</groupId>
@@ -168,12 +205,9 @@
             <artifactId>httpclient5</artifactId>
             <version>5.4.3</version>
         </dependency>
-        <!-- Spring Boot no longer publishes a dedicated starter after 3.4;
-             the BOM still manages liquibase-core. add the core library directly: -->
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <!-- version inherited from spring-boot-dependencies BOM -->
         </dependency>
     </dependencies>
 
@@ -210,6 +244,9 @@
                 <configuration>
                     <parallel>none</parallel>
                     <skipTests>${skipTests}</skipTests>
+                    <systemPropertyVariables>
+                        <spring.profiles.active>${testProfile}</spring.profiles.active>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>

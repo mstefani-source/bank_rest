@@ -15,8 +15,8 @@ import lombok.ToString;
 @Entity
 @Data
 @ToString
-@Table(name = "customers")
-public class Customer  {
+@Table(name = "cardholders")
+public class CardHolder  {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id")
@@ -40,6 +40,6 @@ public class Customer  {
     private Role role = Role.ROLE_USER;
 
     @Column
-    @OneToMany(mappedBy =  "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cardholder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BankCard> cards = new ArrayList<>();
 }

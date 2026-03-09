@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.bankcards.dto.CustomerDto;
+import com.example.bankcards.dto.CardHolderDto;
 // import com.example.bankcards.service.CustomerService;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         var role = jwtService.extractRoles(jwt);
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        UserDetails userDetails = new CustomerDto(customerId, username, email, role);
+        UserDetails userDetails = new CardHolderDto(customerId, username, email, role);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 userDetails,

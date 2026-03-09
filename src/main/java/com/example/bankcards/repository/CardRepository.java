@@ -17,9 +17,7 @@ import com.example.bankcards.entity.BankCard;
 */ 
 
 public interface CardRepository extends JpaRepository<BankCard, Long> {
-    Optional<BankCard> findByCardNumber(Long cardNumber);
-    
+    Optional<BankCard> findByCardNumber(String cardNumber);
     ArrayList<BankCard> findAllById(Long customerId);
-
     Page<BankCard> findByCustomerId(Long customerId, Pageable pageable);
 }

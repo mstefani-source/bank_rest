@@ -22,6 +22,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.ToString;
 
@@ -36,14 +37,14 @@ public class BankCard {
     @Column(name = "id")
     private Long id;
     
-    @Column(unique = true)
-    @NotNull  
-    private Long cardNumber;
+    @Column(length = 19, nullable = false, unique = true)
+    @Pattern(regexp = "^[0-9]{13,19}$", message = "Card number must be 13-19 digits")
+    private String cardNumber;
 
     @JoinColumn(name = "customer_id")
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = "Customer is required")
-    private Customer customer;
+    private CardHolder cardHolder;
 
     @Column(name = "expire_date", nullable = false)
     @NotNull(message = "Expiration date is required")
@@ -64,9 +65,4 @@ public class BankCard {
 
     @CreatedDate
     private LocalDateTime createdAt;
-
-    public String getNumber() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getNumber'");
-    }
 }

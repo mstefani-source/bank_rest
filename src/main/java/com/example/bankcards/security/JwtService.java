@@ -1,6 +1,6 @@
 package com.example.bankcards.security;
 
-import com.example.bankcards.dto.CustomerDto;
+import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.entity.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -123,7 +123,7 @@ public class JwtService {
      */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof CustomerDto customer) {
+        if (userDetails instanceof CardHolderDto customer) {
             claims.put("id", customer.getId());
             claims.put("email", customer.getEmail());
             claims.put("role", customer.getRole());

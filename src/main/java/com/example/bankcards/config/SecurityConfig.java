@@ -1,7 +1,7 @@
 package com.example.bankcards.config;
 
 import com.example.bankcards.security.JwtAuthenticationFilter;
-import com.example.bankcards.service.CustomerService;
+import com.example.bankcards.service.CardHolderService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomerService customerService;
+    private final CardHolderService customerService;
 
 
     @Bean
