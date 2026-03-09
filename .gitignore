@@ -25,4 +25,6 @@ replay_pid*
 /target/
 /.idea/
 /.vscode/
-
+README_Dto.md
+README_Bank_rest.md
+README_*
