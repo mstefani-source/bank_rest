@@ -15,35 +15,35 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.bankcards.dto.BankCardDto;
-import com.example.bankcards.service.CardService;
+import com.example.bankcards.service.BankCardService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/customers/card/")
+@RequestMapping("/api/v1/cards/")
 @RequiredArgsConstructor
 public class CardController {
 
-    private final CardService cardService;
+    private final BankCardService cardService;
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public BankCardDto createCard(@Valid @RequestBody BankCardDto cardDto) {
-        return cardService.create(cardDto);
+        return cardService.createCard(cardDto);
     }
 
     @DeleteMapping("{cardNumber}")
     public ResponseEntity<Void> deleteCard(@PathVariable String cardNumber) {
-        cardService.delete(cardNumber);
+        cardService.deleteCard(cardNumber);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("{customerId}")
+    @GetMapping
     public ResponseEntity<Page<BankCardDto>> getCards(
             @RequestParam(required = false) Long customerId, Pageable pageable) {
         // Spring автоматически заполнит pageable из параметров ?page=0&size=10
-        return ResponseEntity.ok(cardService.findAll(customerId, pageable));
+        return ResponseEntity.ok(cardService.getCardsWithAccessCheck(customerId, pageable));
     }
 
     // --- Переводы для ПОЛЬЗОВАТЕЛЯ ---

@@ -16,7 +16,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.bankcards.dto.CardHolderDto;
-// import com.example.bankcards.service.CustomerService;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -43,8 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Обрезаем префикс и получаем имя пользователя из токена
         var jwt = authHeader.substring(BEARER_PREFIX.length());
-        var customerId = jwtService.extractCustomerId(jwt);
-        var username = jwtService.extractCustomerName(jwt);
+        var customerId = jwtService.extractCardHolderId(jwt);
+        var username = jwtService.extractCardHolderName(jwt);
         var email = jwtService.extractEmail(jwt);
         var role = jwtService.extractRoles(jwt);
 

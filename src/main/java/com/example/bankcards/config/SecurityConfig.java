@@ -32,7 +32,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // INSECURE! Use BCryptPasswordEncoder in real apps.
+        return NoOpPasswordEncoder.getInstance(); // INSECURE! Use BCryptPasswordEncoder 
     }
 
 
@@ -42,8 +42,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/customers").hasRole("ADMIN")
                         .requestMatchers("/cards").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/cards/customer").hasRole("ADMIN")
                         .requestMatchers("/css/**", "/js/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .anyRequest().authenticated()

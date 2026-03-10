@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 2. Define handler for specific exception
     @ExceptionHandler(CardNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFound(CardNotFoundException ex) {
-        // 3. Construct custom error response
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", ex.getMessage());

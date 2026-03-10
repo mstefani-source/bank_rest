@@ -40,6 +40,6 @@ public class CardHolder  {
     private Role role = Role.ROLE_USER;
 
     @Column
-    @OneToMany(mappedBy = "cardholder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cardHolder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BankCard> cards = new ArrayList<>();
 }

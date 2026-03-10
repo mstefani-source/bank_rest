@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
+
+    <changeSet id="3-create-bankcards-table" author="ivanov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bankcards"/>
+            </not>
+        </preConditions>
+        
+        <createTable tableName="bankcards">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="card_number" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="balance" type="DECIMAL(19,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cardholder_id" type="BIGINT">
+                <constraints nullable="false" 
+                           foreignKeyName="fk_bankcards_cardholder"
+                           referencedTableName="cardholders" 
+                           referencedColumnNames="id"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        
+        <comment>Creating bankcards table if it doesn't exist</comment>
+    </changeSet>
+
+    <changeSet id="4-grant-bankcards-permissions" author="ivanov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="bankcards"/>
+        </preConditions>
+        
+        <sql dbms="postgresql">
+            GRANT ALL PRIVILEGES ON TABLE bankcards TO bankrest;
+        </sql>
+        <sql dbms="postgresql">
+            GRANT USAGE, SELECT ON SEQUENCE bankcards_id_seq TO bankrest;
+        </sql>
+        
+        <comment>Granting permissions on bankcards table and sequence</comment>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,12 +1,14 @@
 package com.example.bankcards.repository;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.bankcards.entity.BankCard;
+import com.example.bankcards.entity.enums.CardStatus;
 
 
 /*
@@ -17,7 +19,11 @@ import com.example.bankcards.entity.BankCard;
 */ 
 
 public interface CardRepository extends JpaRepository<BankCard, Long> {
-    Optional<BankCard> findByCardNumber(String cardNumber);
-    ArrayList<BankCard> findAllById(Long customerId);
-    Page<BankCard> findByCustomerId(Long customerId, Pageable pageable);
+    // Optional<BankCard> findByCardNumber(String cardNumber);
+    ArrayList<BankCard> findAllById(Long holderId);
+    Page<BankCard> findByCardHolderId(Long customerId, Pageable pageable);
+    Optional<BankCard> findByCardNumberHash(String cardNumberHash);
+    Optional<BankCard> findByLastFourDigits(String lastFourDigits);
+    List<BankCard> findByStatus(CardStatus status);
+    List<BankCard> findByCardHolderId(Long cardHolderId);
 }

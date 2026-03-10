@@ -32,7 +32,18 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractCardHolderName(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
     public Long extractCustomerId(String token) {
+        Claims claims = extractAllClaims(token);
+        Integer id = (Integer) claims.get("id");
+        return id.longValue();
+
+    }
+
+    public Long extractCardHolderId(String token) {
         Claims claims = extractAllClaims(token);
         Integer id = (Integer) claims.get("id");
         return id.longValue();
@@ -83,7 +94,6 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-
     /**
      * Извлечение данных из токена
      *
@@ -97,7 +107,6 @@ public class JwtService {
         final Claims claims = extractAllClaims(token);
         return claimsResolvers.apply(claims);
     }
-
 
     /**
      * Извлечение всех данных из токена
@@ -113,7 +122,6 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
-
 
     /**
      * Генерация токена
@@ -136,7 +144,6 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-
     /**
      * Генерация токена
      *
@@ -154,6 +161,5 @@ public class JwtService {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
 }

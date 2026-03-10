@@ -38,6 +38,10 @@ application:
       access-token-expiration: 86400000
       refresh-token-expiration: 604800000
 
+encryption:
+  master-secret: ${ENCRYPTION_MASTER_SECRET:defaultSecretKeyChangeInProduction!}
+  salt: ${ENCRYPTION_SALT:defaultSaltChangeInProduction123}
+
 logging:
   level:
     root: INFO
