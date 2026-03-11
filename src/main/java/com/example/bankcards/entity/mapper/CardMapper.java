@@ -3,8 +3,13 @@ package com.example.bankcards.entity.mapper;
 import com.example.bankcards.dto.BankCardDto;
 import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.entity.BankCard;
+import com.example.bankcards.entity.CardHolder;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.entity.enums.Role;
+import com.example.bankcards.exception.CardHolderException;
+import com.example.bankcards.exception.CardNotFoundException;
+import com.example.bankcards.repository.CardHoldersRepository;
+import com.example.bankcards.service.CardHolderService;
 import com.example.bankcards.service.EncryptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +23,7 @@ import java.math.BigDecimal;
 public class CardMapper {
 
     private final EncryptionService encryptionService;
+    private final CardHoldersRepository cardHoldersRepository;
 
     /**
      * Преобразует Entity в DTO (для ответа клиенту)
@@ -37,7 +43,7 @@ public class CardMapper {
     /**
      * Преобразует DTO в Entity с указанным владельцем
      */
-    public BankCard toEntity(BankCardDto dto, CardHolderDto cardHolder) {
+    public BankCard toEntity(BankCardDto dto, CardHolderDto cardHolderDto) {
         if (dto == null) {
             return null;
         }
@@ -65,10 +71,11 @@ public class CardMapper {
             
             // ID владельца - не хранится в BankCard, но может быть использован
             // для связи с CardHolder через отдельное поле/таблицу
-            // card.setCardHolderId(cardHolder.getId()); // если есть такое поле
+            CardHolder cardHolder = cardHoldersRepository.findById(cardHolderDto.getId()).orElseThrow(()-> new CardHolderException(cardHolderDto.getId()));
+            card.setCardHolder(cardHolder); // если есть такое поле
             
             log.debug("Mapped card for user: {}. Last four: {}", 
-                cardHolder.getUsername(), card.getLastFourDigits());
+                cardHolder.getName(), card.getLastFourDigits());
             
             return card;
             

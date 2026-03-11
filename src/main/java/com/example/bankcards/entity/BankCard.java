@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+
+import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.entity.enums.CardStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

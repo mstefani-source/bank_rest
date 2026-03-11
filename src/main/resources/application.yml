@@ -44,8 +44,8 @@ encryption:
 
 logging:
   level:
-    root: INFO
-    com.example.bankcards: INFO
-    org.springframework.web: INFO
-    org.hibernate.SQL: INFO
+    root: DEBUG
+    com.example.bankcards: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE

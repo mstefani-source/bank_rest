@@ -13,26 +13,67 @@
         </preConditions>
         
         <createTable tableName="bankcards">
+            <!-- ID -->
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="card_number" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true"/>
+            
+            <!-- Хэш номера карты (для поиска) -->
+            <column name="hash" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
             </column>
+            
+            <!-- Зашифрованный номер карты -->
+            <column name="encrypted" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Последние 4 цифры (для отображения) -->
+            <column name="lastdigits" type="VARCHAR(4)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Статус карты -->
+            <column name="status" type="VARCHAR(50)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Баланс -->
             <column name="balance" type="DECIMAL(19,2)" defaultValueNumeric="0.00">
                 <constraints nullable="false"/>
             </column>
-            <column name="cardholder_id" type="BIGINT">
+            
+            <!-- Связь с владельцем -->
+            <column name="card_holder_id" type="BIGINT">
                 <constraints nullable="false" 
-                           foreignKeyName="fk_bankcards_cardholder"
+                           foreignKeyName="fk_bankcards_card_holder"
                            referencedTableName="cardholders" 
                            referencedColumnNames="id"/>
             </column>
+            
+            <!-- Временные метки -->
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
         
-        <comment>Creating bankcards table if it doesn't exist</comment>
+        <!-- Индексы для быстрого поиска -->
+        <createIndex indexName="idx_bankcards_hash" tableName="bankcards">
+            <column name="hash"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_bankcards_lastdigits" tableName="bankcards">
+            <column name="lastdigits"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_bankcards_card_holder_id" tableName="bankcards">
+            <column name="card_holder_id"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_bankcards_status" tableName="bankcards">
+            <column name="status"/>
+        </createIndex>
+        
+        <comment>Creating bankcards table with secure card storage (hash, encrypted, lastdigits)</comment>
     </changeSet>
 
     <changeSet id="4-grant-bankcards-permissions" author="ivanov" runOnChange="true">
