@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.bankcards.dto.BankCardDto;
 import com.example.bankcards.dto.CardHolderDto;
+import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.BankCard;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.entity.enums.Role;
@@ -18,6 +19,7 @@ import com.example.bankcards.entity.mapper.CardMapper;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.repository.CardRepository;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -158,5 +160,10 @@ public class BankCardService {
         // if (!card.getCardHolderId().equals(currentUser.getId())) {
         // throw new SecurityException("You don't have permission to access this card");
         // }
+    }
+
+    public void transfer(TransferRequest request) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'transfer'");
     }
 }
