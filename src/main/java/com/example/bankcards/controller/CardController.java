@@ -21,7 +21,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/cards/")
+@RequestMapping("/api/v1/cards")
 @RequiredArgsConstructor
 public class CardController {
 
@@ -33,7 +33,7 @@ public class CardController {
         return cardService.createCard(cardDto);
     }
 
-    @DeleteMapping("{cardNumber}")
+    @DeleteMapping("/{cardNumber}")
     public ResponseEntity<Void> deleteCard(@PathVariable String cardNumber) {
         cardService.deleteCard(cardNumber);
         return ResponseEntity.noContent().build();
