@@ -44,9 +44,9 @@ public class CardController {
 
     @GetMapping("/{cardHolderId}/cards")
     public ResponseEntity<Page<BankCardDto>> getCards(
-            @RequestParam(required = false) Long customerId, Pageable pageable) {
+            @RequestParam(required = false) Long cardHolderId, Pageable pageable) {
         // Spring автоматически заполнит pageable из параметров ?page=0&size=10
-        return ResponseEntity.ok(cardService.getCardsWithAccessCheck(customerId, pageable));
+        return ResponseEntity.ok(cardService.getCardsWithAccessCheck(cardHolderId, pageable));
     }
 
     // --- Переводы для ПОЛЬЗОВАТЕЛЯ ---  Role USER и ADMIN

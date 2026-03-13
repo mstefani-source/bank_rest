@@ -102,7 +102,7 @@ public class BankCardService {
                 getCurrentUsername(), card.getLastFourDigits());
     }
 
-    public Page<BankCardDto> getCardsWithAccessCheck(Long customerId, Pageable pageable) {
+    public Page<BankCardDto> getCardsWithAccessCheck(Long cardHolderId, Pageable pageable) {
 
         // Получаем текущего пользователя
         CardHolderDto currentUser = getCurrentUser();
@@ -111,8 +111,8 @@ public class BankCardService {
 
         // Админ может видеть все карты
         if (currentUser.getRole() == Role.ROLE_ADMIN) {
-            if (customerId != null) {
-                cardPage = cardRepository.findByCardHolderId(customerId, pageable);
+            if (cardHolderId != null) {
+                cardPage = cardRepository.findByCardHolderId(cardHolderId, pageable);
             } else {
                 cardPage = cardRepository.findAll(pageable);
             }
