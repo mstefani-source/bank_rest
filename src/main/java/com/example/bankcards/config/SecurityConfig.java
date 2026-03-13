@@ -42,8 +42,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/cards").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/cards/customers").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/cards/**").hasRole( "ADMIN")
+                        .requestMatchers("/api/v1/users/me/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers("/css/**", "/js/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .anyRequest().authenticated()

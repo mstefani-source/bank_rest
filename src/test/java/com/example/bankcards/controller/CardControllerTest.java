@@ -57,7 +57,7 @@ class CardControllerTest {
         when(cardService.createCard(any(BankCardDto.class))).thenReturn(outputDto);
 
         // Выполняем POST запрос и проверяем результат
-        mockMvc.perform(post("/api/v1/cards/")
+        mockMvc.perform(post("/api/v1/cards")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isCreated()) // Проверяем статус 201

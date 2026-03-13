@@ -41,7 +41,7 @@ public class CardMapper {
     /**
      * Преобразует DTO в Entity с указанным владельцем
      */
-    public BankCard toEntity(BankCardDto dto, CardHolderDto cardHolderDto) {
+    public BankCard toEntity(BankCardDto dto) { //, CardHolderDto cardHolderDto) {
         if (dto == null) {
             return null;
         }
@@ -67,10 +67,9 @@ public class CardMapper {
             card.setStatus(CardStatus.ACTIVE);
             card.setBalance(BigDecimal.ZERO);
             
-            // ID владельца - не хранится в BankCard, но может быть использован
-            // для связи с CardHolder через отдельное поле/таблицу
-            CardHolder cardHolder = cardHoldersRepository.findById(cardHolderDto.getId()).orElseThrow(()-> new CardHolderException(cardHolderDto.getId()));
-            card.setCardHolder(cardHolder); // если есть такое поле
+            // проверяем есть ли такой CardHolder через отдельное поле/таблицу
+            CardHolder cardHolder = cardHoldersRepository.findById(dto.getCardHolderId()).orElseThrow(()-> new CardHolderException(dto.getCardHolderId()));
+            card.setCardHolder(cardHolder);
             
             log.debug("Mapped card for user: {}. Last four: {}", 
                 cardHolder.getName(), card.getLastFourDigits());
@@ -86,13 +85,13 @@ public class CardMapper {
     /**
      * Преобразует DTO в Entity (использует текущего пользователя из SecurityContext)
      */
-    public BankCard toEntity(BankCardDto dto) {
-        CardHolderDto currentUser = getCurrentUser();
-        if (currentUser == null) {
-            throw new IllegalStateException("No authenticated user found");
-        }
-        return toEntity(dto, currentUser);
-    }
+    // public BankCard toEntity(BankCardDto dto) {
+    //     CardHolderDto currentUser = getCurrentUser();
+    //     if (currentUser == null) {
+    //         throw new IllegalStateException("No authenticated user found");
+    //     }
+    //     return toEntity(dto, currentUser);
+    // }
 
     /**
      * Создает DTO с маскированным номером для безопасного отображения
@@ -104,7 +103,7 @@ public class CardMapper {
 
         return BankCardDto.builder()
             .cardNumber(formatMaskedCardNumber(card.getLastFourDigits()))
-            .cardHolderId(getCurrentUserId())
+            .cardHolderId(card.getCardHolder().getId())
             .build();
     }
 

@@ -15,42 +15,45 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.bankcards.dto.BankCardDto;
+import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.service.BankCardService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/cards")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class CardController {
 
     private final BankCardService cardService;
 
-    @PostMapping
+    @PostMapping("/cards")
     @ResponseStatus(code = HttpStatus.CREATED)
     public BankCardDto createCard(@Valid @RequestBody BankCardDto cardDto) {
         return cardService.createCard(cardDto);
     }
 
-    @DeleteMapping("/{cardNumber}")
+    @DeleteMapping("/cards/{cardNumber}")
     public ResponseEntity<Void> deleteCard(@PathVariable String cardNumber) {
         cardService.deleteCard(cardNumber);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
+    // --- Просмотр карт для ПОЛЬЗОВАТЕЛЯ --- Role USER и ADMIN 
+
+    @GetMapping("/{cardHolderId}/cards")
     public ResponseEntity<Page<BankCardDto>> getCards(
             @RequestParam(required = false) Long customerId, Pageable pageable) {
         // Spring автоматически заполнит pageable из параметров ?page=0&size=10
         return ResponseEntity.ok(cardService.getCardsWithAccessCheck(customerId, pageable));
     }
 
-    // --- Переводы для ПОЛЬЗОВАТЕЛЯ ---
+    // --- Переводы для ПОЛЬЗОВАТЕЛЯ ---  Role USER и ADMIN
     
-    // @PostMapping("/transfer")
-    // public ResponseEntity<String> transferBetweenOwnCards(@Valid @RequestBody TransferRequest request) {
-    //     cardService.transfer(request);
-    //     return ResponseEntity.ok("Перевод успешно выполнен");
-    // }
+    @PostMapping("/{cardHolderId}/cards")
+    public ResponseEntity<String> transferBetweenOwnCards(@Valid @RequestBody TransferRequest request) {
+        cardService.transfer(request);
+        return ResponseEntity.ok("Перевод успешно выполнен");
+    }
 }

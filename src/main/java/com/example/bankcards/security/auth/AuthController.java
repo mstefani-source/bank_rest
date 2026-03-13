@@ -1,11 +1,13 @@
 package com.example.bankcards.security.auth;
 
-import com.example.bankcards.security.RegistrationRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.bankcards.dto.LoginRequest;
+import com.example.bankcards.dto.RegistrationRequest;
 
 @RestController
 @RequestMapping("/auth")
