@@ -3,7 +3,7 @@ package com.example.bankcards.service;
 import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.entity.CardHolder;
 import com.example.bankcards.entity.mapper.CardHolderMapper;
-import com.example.bankcards.repository.CardHoldersRepository;
+import com.example.bankcards.repository.CardHolderRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,10 +16,10 @@ import java.util.Optional;
 @Log4j2
 public class CardHolderService {
 
-    private final CardHoldersRepository cardHoldersRepository;
+    private final CardHolderRepository cardHoldersRepository;
     private final CardHolderMapper cardHolderMapper;
 
-    public CardHolderService(CardHoldersRepository cardHoldersRepository, CardHolderMapper cardHolderMapper) {
+    public CardHolderService(CardHolderRepository cardHoldersRepository, CardHolderMapper cardHolderMapper) {
         this.cardHoldersRepository = cardHoldersRepository;
         this.cardHolderMapper = cardHolderMapper;
     }

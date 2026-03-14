@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.bankcards.dto.LoginRequest;
+import com.example.bankcards.dto.AuthRequest;
 import com.example.bankcards.dto.RegistrationRequest;
 
 @RestController
@@ -24,7 +24,7 @@ public class AuthController {
 
     @Operation(summary = "Авторизация пользователя")
     @PostMapping("/sign-in")
-    public JwtAuthenticationResponse signIn(@RequestBody @Valid LoginRequest request) {
+    public JwtAuthenticationResponse signIn(@RequestBody @Valid AuthRequest request) {
         return authenticationService.signIn(request);
     }
 }

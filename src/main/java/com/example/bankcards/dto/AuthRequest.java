@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @Schema(description = "Запрос на аутентификацию")
-public class LoginRequest {
+public class AuthRequest {
 
     @Schema(description = "логин (e-mail", example = "John")
     @NotBlank(message = "Email не может быть пустыми")

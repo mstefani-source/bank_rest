@@ -20,10 +20,10 @@ import com.example.bankcards.entity.enums.CardStatus;
 
 public interface CardRepository extends JpaRepository<BankCard, Long> {
     // Optional<BankCard> findByCardNumber(String cardNumber);
-    ArrayList<BankCard> findAllById(Long holderId);
+    List<BankCard> findAllById(Long holderId);
     Page<BankCard> findByCardHolderId(Long customerId, Pageable pageable);
     Optional<BankCard> findByCardNumberHash(String cardNumberHash);
     Optional<BankCard> findByLastFourDigits(String lastFourDigits);
     List<BankCard> findByStatus(CardStatus status);
-    List<BankCard> findByCardHolderId(Long cardHolderId);
+    // List<BankCard> findByCardHolderId(Long cardHolderId);
 }

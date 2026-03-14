@@ -62,11 +62,11 @@ public class BankCardService {
     }
 
     @Transactional(readOnly = true)
-    public List<BankCardDto> getUserCards() {
+    public List<BankCardDto> getUserCards(Pageable pageable) {
         Long userId = getCurrentUserId();
 
         // Ищем все карты пользователя
-        List<BankCard> cards = cardRepository.findByCardHolderId(userId);
+        Page<BankCard> cards = cardRepository.findByCardHolderId(userId, pageable);
 
         return cards.stream()
                 .map(cardMapper::toMaskedDto)

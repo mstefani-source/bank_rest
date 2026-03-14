@@ -27,7 +27,7 @@ public class CardHolder  {
     private String name;
 
     @NotBlank
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @NotBlank
@@ -42,4 +42,5 @@ public class CardHolder  {
     @Column
     @OneToMany(mappedBy = "cardHolder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BankCard> cards = new ArrayList<>();
+
 }

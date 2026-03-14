@@ -2,8 +2,8 @@ package com.example.bankcards.security.auth;
 
 import com.example.bankcards.security.JwtService;
 import com.example.bankcards.service.CardHolderService;
+import com.example.bankcards.dto.AuthRequest;
 import com.example.bankcards.dto.CardHolderDto;
-import com.example.bankcards.dto.LoginRequest;
 import com.example.bankcards.dto.RegistrationRequest;
 import com.example.bankcards.entity.enums.Role;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +50,7 @@ public class AuthenticationService {
      * @param request данные пользователя
      * @return токен
      */
-    public JwtAuthenticationResponse signIn(LoginRequest request) {
+    public JwtAuthenticationResponse signIn(AuthRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
                 request.getPassword()

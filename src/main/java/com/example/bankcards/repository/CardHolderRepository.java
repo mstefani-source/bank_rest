@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.bankcards.entity.CardHolder;
 
-public interface CardHoldersRepository extends JpaRepository<CardHolder, Long> {
+public interface CardHolderRepository extends JpaRepository<CardHolder, Long> {
     Optional<CardHolder> findByEmail(String email);
 }

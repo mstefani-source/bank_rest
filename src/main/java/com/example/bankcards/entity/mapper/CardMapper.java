@@ -7,7 +7,7 @@ import com.example.bankcards.entity.CardHolder;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.entity.enums.Role;
 import com.example.bankcards.exception.CardHolderException;
-import com.example.bankcards.repository.CardHoldersRepository;
+import com.example.bankcards.repository.CardHolderRepository;
 import com.example.bankcards.service.EncryptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 public class CardMapper {
 
     private final EncryptionService encryptionService;
-    private final CardHoldersRepository cardHoldersRepository;
+    private final CardHolderRepository cardHoldersRepository;
 
     /**
      * Преобразует Entity в DTO (для ответа клиенту)
