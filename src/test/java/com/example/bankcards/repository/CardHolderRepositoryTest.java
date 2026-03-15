@@ -1,6 +1,7 @@
 package com.example.bankcards.repository;
 
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.bankcards.entity.CardHolder;
 import com.example.bankcards.entity.enums.Role;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CardHolderRepositoryTest {
 
