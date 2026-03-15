@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -54,7 +53,6 @@ public class JwtAuthenticationFlowTest {
         private String amdinEmail = "admin@email.com";
         private String adminPassword = "admin123456";
         private String adminName = "Admin";
-        private Long adminId;
 
         @BeforeEach
         void setUp() {
@@ -67,7 +65,6 @@ public class JwtAuthenticationFlowTest {
                 adminUser.setPassword(passwordEncoder.encode(adminPassword));
                 adminUser.setRole(Role.ROLE_ADMIN);
                 cardHoldersRepository.save(adminUser);
-                adminId = cardHolderService.findByEmail(amdinEmail).getId();
         }
 
         @Test
@@ -145,12 +142,7 @@ public class JwtAuthenticationFlowTest {
                                 JwtAuthenticationResponse.class);
                 String userLoginToken = authResponse.getToken();
 
-                // Шаг 4: Проверяем, что новый токен тоже работает смотрим карты для User'a
-                // BankCardDto anotherCardDto = BankCardDto.builder()
-                //                 .cardNumber("5555666677778888")
-                //                 .cardHolderId(1L)
-                //                 .build();
-
+                // Шаг 4: Используем новый токен для доступа к картам пользователя
                 mockMvc.perform(get("/api/v1/{testUserId}/cards", testUserId)
                                 .header("Authorization", "Bearer " + userLoginToken)
                                 .contentType(MediaType.APPLICATION_JSON))

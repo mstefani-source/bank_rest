@@ -62,6 +62,6 @@ class CardControllerTest {
                 .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isCreated()) // Проверяем статус 201
                 .andExpect(jsonPath("$.cardNumber").value("1234567890123456"))
-                .andExpect(jsonPath("$.cardHolderId").value(1L));
+                .andExpect(jsonPath("$.cardHolderId").value(inputDto.getCardHolderId()));
     }
 }

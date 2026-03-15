@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomUserDetailsService implements UserDetailsService {
 
     // Проверьте, правильный ли импорт
-    private final CardHolderRepository cardHolderRepository;  // 👈 Должен быть ваш репозиторий
+    private final CardHolderRepository cardHolderRepository;
     
     @Override
     public UserDetails loadUserByUsername(String email) {

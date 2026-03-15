@@ -45,7 +45,7 @@ public class CardHolderService {
         return Optional.of(cardHolderMapper.ToDto(cardHoldersRepository.findById(id).orElseThrow()));
     }
 
-    public void deleteTarget(Long id) {
+    public void deleteCardHolder(Long id) {
         cardHoldersRepository.deleteById(id);
     }
 
