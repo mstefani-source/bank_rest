@@ -46,8 +46,12 @@ public class CardHolderService {
                 .toList();
     }
 
-    public Optional<CardHolderResponseDto> findById(Long id) {
-        return Optional.of(cardHolderMapper.ToDto(cardHoldersRepository.findById(id).orElseThrow()));
+    // public Optional<CardHolderResponseDto> findById(Long id) {
+    //     return Optional.of(cardHolderMapper.ToDto(cardHoldersRepository.findById(id).orElseThrow()));
+    // }
+
+    public Optional<CardHolderDto> findById(Long id) {
+        return Optional.of(cardHolderMapper.toUserDetails(cardHoldersRepository.findById(id).orElseThrow()));
     }
 
     public void deleteCardHolder(Long id) {

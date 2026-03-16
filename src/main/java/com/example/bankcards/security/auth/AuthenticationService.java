@@ -9,6 +9,7 @@ import com.example.bankcards.dto.CardHolderResponseDto;
 import com.example.bankcards.dto.RegistrationRequest;
 import com.example.bankcards.entity.enums.Role;
 import com.example.bankcards.entity.mapper.CardHolderMapper;
+import com.example.bankcards.exception.CardHolderException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,8 +27,6 @@ public class AuthenticationService {
     private final CardHolderService cardHolderService;
     private final CardHolderMapper cardHolderMapper;
 
-
-
     /**
      * Регистрация пользователя
      *
@@ -39,14 +38,17 @@ public class AuthenticationService {
         var customerDto = CardHolderRequestDto.builder()
                 .name(request.getName())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.ROLE_USER)
+                .password(request.getPassword())
                 .build();
 
         CardHolderResponseDto createdHolderResponseDto = cardHolderService.createCardHolder(customerDto);
 
 
-        var jwt = jwtService.generateToken(cardHolderMapper.toUserDetails(createdHolderResponseDto));
+        CardHolderDto fullUserDetails = cardHolderService
+                .findById(createdHolderResponseDto.getId())
+                .orElseThrow(() -> new CardHolderException(createdHolderResponseDto.getId()));
+
+        var jwt = jwtService.generateToken(fullUserDetails);
         return new JwtAuthenticationResponse(jwt);
     }
 
@@ -59,8 +61,7 @@ public class AuthenticationService {
     public JwtAuthenticationResponse signIn(AuthRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
-                request.getPassword()
-        ));
+                request.getPassword()));
 
         var user = cardHolderService
                 .userDetailsService()
