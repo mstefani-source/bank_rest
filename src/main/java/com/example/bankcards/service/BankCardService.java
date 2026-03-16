@@ -104,12 +104,10 @@ public class BankCardService {
 
     public Page<BankCardDto> getCardsWithAccessCheck(Long cardHolderId, Pageable pageable) {
 
-        // Получаем текущего пользователя
         CardHolderDto currentUser = getCurrentUser();
 
         Page<BankCard> cardPage;
 
-        // Админ может видеть все карты
         if (currentUser.getRole() == Role.ROLE_ADMIN) {
             if (cardHolderId != null) {
                 cardPage = cardRepository.findByCardHolderId(cardHolderId, pageable);
@@ -117,15 +115,12 @@ public class BankCardService {
                 cardPage = cardRepository.findAll(pageable);
             }
         }
-        // Обычный пользователь видит только свои карты
         else {
-            // Игнорируем переданный customerId, используем ID текущего пользователя
             cardPage = cardRepository.findByCardHolderId(currentUser.getId(), pageable);
         }
 
         return cardPage.map(card -> {
             BankCardDto dto = cardMapper.toMaskedDto(card);
-            // Можно добавить дополнительную информацию
             return dto;
         });
     }

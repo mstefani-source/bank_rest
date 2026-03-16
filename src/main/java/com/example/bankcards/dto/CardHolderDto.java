@@ -1,8 +1,6 @@
 package com.example.bankcards.dto;
 
 import com.example.bankcards.entity.enums.Role;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

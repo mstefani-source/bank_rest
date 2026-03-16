@@ -1,12 +1,17 @@
 package com.example.bankcards.service;
 
 import com.example.bankcards.dto.CardHolderDto;
+import com.example.bankcards.dto.CardHolderRequestDto;
+import com.example.bankcards.dto.CardHolderResponseDto;
 import com.example.bankcards.entity.CardHolder;
 import com.example.bankcards.entity.mapper.CardHolderMapper;
 import com.example.bankcards.repository.CardHolderRepository;
 import lombok.extern.log4j.Log4j2;
+
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,15 +29,15 @@ public class CardHolderService {
         this.cardHolderMapper = cardHolderMapper;
     }
 
-    public CardHolderDto createCardHolder(CardHolderDto cardHolderDto) {
+    public CardHolderResponseDto createCardHolder(CardHolderRequestDto cardHolderRequestDto) {
 
-        CardHolder cardHolder = cardHolderMapper.ToEntity(cardHolderDto);
+        CardHolder cardHolder = cardHolderMapper.ToEntity(cardHolderRequestDto);
         CardHolder savedCardHolder = cardHoldersRepository.save(cardHolder);
 
         return cardHolderMapper.ToDto(savedCardHolder);
     }
 
-    public List<CardHolderDto> findAllCustomers() {
+    public List<CardHolderResponseDto> findAllCustomers() {
         List<CardHolder> cardHolders = cardHoldersRepository.findAll();
 
         return cardHolders
@@ -41,7 +46,7 @@ public class CardHolderService {
                 .toList();
     }
 
-    public Optional<CardHolderDto> findById(Long id) {
+    public Optional<CardHolderResponseDto> findById(Long id) {
         return Optional.of(cardHolderMapper.ToDto(cardHoldersRepository.findById(id).orElseThrow()));
     }
 
@@ -49,27 +54,35 @@ public class CardHolderService {
         cardHoldersRepository.deleteById(id);
     }
 
-    public CardHolderDto updateCardHolder(Long id, CardHolderDto customerDto) {
+    public CardHolderResponseDto updateCardHolder(Long id, CardHolderDto customerDto) {
         CardHolder customer = cardHoldersRepository
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Customer_id not exist"));
+                .orElseThrow(() -> new IllegalArgumentException("CardHolder_id not exist"));
         customer.setName(customerDto.getName());
         return cardHolderMapper.ToDto(cardHoldersRepository.save(customer));
     }
 
-    public CardHolderDto findByEmail(String email) {
+    public CardHolderResponseDto findByEmail(String email) {
         return cardHolderMapper.ToDto(
                 cardHoldersRepository.findByEmail(email)
-                        .orElseThrow(() -> new NoSuchElementException("No such customer")));
+                        .orElseThrow(() -> new NoSuchElementException("No such CardHolder")));
     }
 
-    public CardHolderDto getCurrentUser() {
+    public CardHolderResponseDto getCurrentUser() {
         // Получение имени пользователя из контекста Spring Security
         var email = SecurityContextHolder.getContext().getAuthentication().getName();
         return findByEmail(email);
     }
 
     public UserDetailsService userDetailsService() {
-        return this::findByEmail;
+        return new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+                CardHolder cardHolder = cardHoldersRepository.findByEmail(email)
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+                return cardHolderMapper.toUserDetails(cardHolder);
+            }
+        };
     }
 }

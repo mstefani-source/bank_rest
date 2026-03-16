@@ -1,27 +1,26 @@
 package com.example.bankcards.entity.mapper;
 
 import com.example.bankcards.dto.CardHolderDto;
+import com.example.bankcards.dto.CardHolderRequestDto;
+import com.example.bankcards.dto.CardHolderResponseDto;
 import com.example.bankcards.entity.CardHolder;
 import org.springframework.stereotype.Component;
-
 
 @Component
 public class CardHolderMapper {
 
-    public CardHolderDto ToDto(CardHolder cardHolder) {
+    public CardHolderResponseDto ToDto(CardHolder cardHolder) {
 
-        CardHolderDto customerDto = new CardHolderDto();
+        CardHolderResponseDto cardHolderDto = new CardHolderResponseDto();
 
-        customerDto.setId(cardHolder.getId());
-        customerDto.setName(cardHolder.getName());
-        customerDto.setEmail(cardHolder.getEmail());
-        customerDto.setPassword(cardHolder.getPassword());
-        customerDto.setRole(cardHolder.getRole());
-
-        return customerDto;
+        cardHolderDto.setId(cardHolder.getId());
+        cardHolderDto.setName(cardHolder.getName());
+        cardHolderDto.setEmail(cardHolder.getEmail());
+        cardHolderDto.setRole(cardHolder.getRole());
+        return cardHolderDto;
     }
 
-    public CardHolder ToEntity (CardHolderDto cardHolderDto) {
+    public CardHolder ToEntity(CardHolderRequestDto cardHolderDto) {
 
         CardHolder cardHolder = new CardHolder();
 
@@ -31,6 +30,33 @@ public class CardHolderMapper {
         cardHolder.setPassword(cardHolderDto.getPassword());
 
         return cardHolder;
+    }
+
+    public CardHolderDto toUserDetails(CardHolder entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return CardHolderDto.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .password(entity.getPassword())
+                .role(entity.getRole())
+                .build();
+    }
+
+    public CardHolderDto toUserDetails(CardHolderResponseDto entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return CardHolderDto.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .role(entity.getRole())
+                .build();
     }
 
 }

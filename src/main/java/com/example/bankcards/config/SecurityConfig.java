@@ -27,28 +27,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CardHolderService customerService;
-
+    private final CardHolderService cardHolderService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // INSECURE! Use BCryptPasswordEncoder 
+        return NoOpPasswordEncoder.getInstance(); // INSECURE! Use BCryptPasswordEncoder
     }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/swagger-ui/**","/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/v1/cards/**").hasRole( "ADMIN")
-                        .requestMatchers("/api/v1/card-holders/**").hasRole( "ADMIN")
-                        .requestMatchers("/api/v1/{cardHolderId}/cards/**").hasAnyRole("USER","ADMIN")
+                        .requestMatchers("/api/v1/cards/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/card-holders/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/{cardHolderId}/cards/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/css/**", "/js/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -58,7 +56,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customerService.userDetailsService());
+        authProvider.setUserDetailsService(cardHolderService.userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

@@ -17,6 +17,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.example.bankcards.dto.CardHolderDto;
+import com.example.bankcards.dto.CardHolderRequestDto;
+import com.example.bankcards.dto.CardHolderResponseDto;
 import com.example.bankcards.service.CardHolderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
@@ -91,14 +93,13 @@ public class CardHolderControllerTest {
         requestBody.put("email", "john.doe@example.com");
         requestBody.put("password", "password123");
 
-        CardHolderDto responseDto = CardHolderDto.builder()
+        CardHolderResponseDto responseDto = CardHolderResponseDto.builder()
                 .id(1L)
                 .name("John Doe")
                 .email("john.doe@example.com")
-                .role(Role.ROLE_USER)
                 .build();
 
-        when(cardHolderService.createCardHolder(any(CardHolderDto.class))).thenReturn(responseDto);
+        when(cardHolderService.createCardHolder(any(CardHolderRequestDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(post(BASE_URL)
                 .with(csrf())
@@ -109,6 +110,7 @@ public class CardHolderControllerTest {
                 .andExpect(jsonPath("$.name").value("John Doe"))
                 .andExpect(jsonPath("$.email").value("john.doe@example.com"))
                 .andExpect(jsonPath("$.role").value("ROLE_USER"));
+        verify(cardHolderService, times(1)).createCardHolder(any(CardHolderRequestDto.class));
     }
 
     @Test

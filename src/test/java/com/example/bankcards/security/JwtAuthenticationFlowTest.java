@@ -3,6 +3,7 @@ package com.example.bankcards.security;
 import com.example.bankcards.dto.AuthRequest;
 import com.example.bankcards.dto.BankCardDto;
 import com.example.bankcards.dto.CardHolderDto;
+import com.example.bankcards.dto.CardHolderResponseDto;
 import com.example.bankcards.dto.RegistrationRequest;
 import com.example.bankcards.entity.CardHolder;
 import com.example.bankcards.entity.enums.Role;
@@ -88,7 +89,7 @@ public class JwtAuthenticationFlowTest {
                 String userRegistrationToken = registerResponse.getToken();
 
                 // Сохраняем ID нового пользователя для дальнейших тестов
-                CardHolderDto registeredUser = cardHolderService.findByEmail(testEmail);
+                CardHolderResponseDto registeredUser = cardHolderService.findByEmail(testEmail);
                 testUserId = registeredUser.getId();
 
                 // Проверяем, что токен не пустой
