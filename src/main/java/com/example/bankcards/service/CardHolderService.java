@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -36,19 +35,6 @@ public class CardHolderService {
 
         return cardHolderMapper.ToDto(savedCardHolder);
     }
-
-    public List<CardHolderResponseDto> findAllCustomers() {
-        List<CardHolder> cardHolders = cardHoldersRepository.findAll();
-
-        return cardHolders
-                .stream()
-                .map((cardHolder) -> cardHolderMapper.ToDto(cardHolder))
-                .toList();
-    }
-
-    // public Optional<CardHolderResponseDto> findById(Long id) {
-    //     return Optional.of(cardHolderMapper.ToDto(cardHoldersRepository.findById(id).orElseThrow()));
-    // }
 
     public Optional<CardHolderDto> findById(Long id) {
         return Optional.of(cardHolderMapper.toUserDetails(cardHoldersRepository.findById(id).orElseThrow()));

@@ -2,7 +2,6 @@ package com.example.bankcards.security;
 
 import com.example.bankcards.dto.AuthRequest;
 import com.example.bankcards.dto.BankCardDto;
-import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.dto.CardHolderResponseDto;
 import com.example.bankcards.dto.RegistrationRequest;
 import com.example.bankcards.entity.CardHolder;
@@ -21,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
