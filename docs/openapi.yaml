@@ -1,1 +1,198 @@
-# Здесь будет OpenAPI описание всех доступных эндпоинтов и моделей данных.
+openapi: 3.0.3
+info:
+  title: Bank Cards REST API
+  description: API for managing bank cards and card holders
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /api/v1/cards:
+    post:
+      summary: Create a new bank card
+      operationId: createCard
+      tags:
+        - Cards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankCardDto'
+      responses:
+        '201':
+          description: Card created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankCardDto'
+        '400':
+          description: Invalid input
+    delete:
+      summary: Delete a bank card by card number
+      operationId: deleteCard
+      tags:
+        - Cards
+      parameters:
+        - name: cardNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Card deleted successfully
+        '404':
+          description: Card not found
+  /api/v1/{cardHolderId}/cards:
+    get:
+      summary: Get list of cards for a card holder with access check
+      operationId: getCards
+      tags:
+        - Cards
+      parameters:
+        - name: cardHolderId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: cardHolderId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of cards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BankCardDto'
+                  pageable:
+                    type: object
+                  totalElements:
+                    type: integer
+        '403':
+          description: Access denied
+    post:
+      summary: Transfer between own cards
+      operationId: transferBetweenOwnCards
+      tags:
+        - Cards
+      parameters:
+        - name: cardHolderId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '200':
+          description: Transfer successful
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Invalid transfer request
+  /api/v1/card-holders:
+    post:
+      summary: Create a new card holder
+      operationId: createCardHolder
+      tags:
+        - Card Holders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardHolderRequestDto'
+      responses:
+        '201':
+          description: Card holder created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardHolderResponseDto'
+        '400':
+          description: Invalid input
+    delete:
+      summary: Delete a card holder by ID
+      operationId: deleteCardHolder
+      tags:
+        - Card Holders
+      parameters:
+        - name: cardHolderId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Card holder deleted successfully
+        '404':
+          description: Card holder not found
+components:
+  schemas:
+    BankCardDto:
+      type: object
+      required:
+        - cardNumber
+        - cardHolderId
+      properties:
+        cardNumber:
+          type: string
+          pattern: '^[0-9]{13,19}$'
+          description: Bank card number
+        cardHolderId:
+          type: integer
+          format: int64
+          description: ID of the card holder
+    CardHolderRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the card holder
+        email:
+          type: string
+          format: email
+          description: Email address
+        password:
+          type: string
+          description: Password
+    CardHolderResponseDto:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID of the card holder
+    TransferRequest:
+      type: object
+      description: Request for transferring between cards (fields to be defined)

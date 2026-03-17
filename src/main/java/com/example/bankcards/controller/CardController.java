@@ -1,6 +1,9 @@
 package com.example.bankcards.controller;
 
 import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,13 @@ import com.example.bankcards.service.BankCardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/*
+  - Просматривает свои карты (поиск + пагинация) +
+  - Запрашивает блокировку карты
+  - Делает переводы между своими картами +
+  - Смотрит баланс
+*/ 
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -43,6 +53,12 @@ public class CardController {
     public ResponseEntity<Void> deleteCard(@PathVariable String cardNumber) {
         cardService.deleteCard(cardNumber);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/cards/{cardNumber}")
+    @Operation(summary = "Получение информации о карте по номеру с учетом прав доступа")
+    public ResponseEntity<BigDecimal> getCard(@PathVariable String cardNumber) {
+        return ResponseEntity.ok(cardService.getCardBalanse(cardNumber));
     }
 
     @GetMapping("/{cardHolderId}/cards")
