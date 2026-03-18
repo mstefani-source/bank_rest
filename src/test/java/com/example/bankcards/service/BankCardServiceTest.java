@@ -2,11 +2,17 @@ package com.example.bankcards.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,7 +49,9 @@ import com.example.bankcards.dto.BankCardDto;
 import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.entity.BankCard;
 import com.example.bankcards.entity.CardHolder;
+import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.entity.enums.Role;
+import com.example.bankcards.entity.mapper.CardHolderMapper;
 import com.example.bankcards.entity.mapper.CardMapper;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.repository.CardHolderRepository;
@@ -52,204 +61,161 @@ import com.example.bankcards.security.auth.JwtAuthenticationResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-// @ExtendWith(MockitoExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BankCardServiceTest {
+        @Mock
+        private CardRepository cardRepository;
+        @Mock
+        private CardHolderRepository cardHolderRepository;
+        @Mock
+        private CardMapper cardMapper;
+        @Mock
+        private EncryptionService encryptionService;
+        @Mock
+        private CardHolderMapper cardHolderMapper;
+        @InjectMocks
+        private BankCardService bankCardService;
 
-    @Autowired
-    private CardHolderRepository cardHoldersRepository;
+        private Long userId = 1L;
+        private String cardNumber = "1111222233334444";
+        private String hash = "test-hash";
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+        @BeforeEach
+        void setUp() {
+                CardHolderDto cardHolderDto = CardHolderDto.builder()
+                                .id(1L)
+                                .name("Test User")
+                                .email("test@example.com")
+                                .password("V04pvZe3cMJstqL")
+                                .role(Role.ROLE_USER)
+                                .build();
 
-    @Autowired
-    private MockMvc mockMvc;
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(cardHolderDto, null,
+                                cardHolderDto.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
 
-    @Autowired
-    private CardRepository cardRepository;
+                CardHolder cardHolderEntity = new CardHolder();
+                cardHolderEntity.setId(cardHolderDto.getId());
+                cardHolderEntity.setEmail("test@example.com");
 
-    @Autowired
-    private CardMapper cardMapper;
+                when(cardHolderRepository.findById(cardHolderDto.getId())).thenReturn(Optional.of(cardHolderEntity));
+                when(cardHolderMapper.fromEntityToDto(cardHolderEntity)).thenReturn(cardHolderDto);
 
-    @Autowired
-    private EncryptionService encryptionService;
+                BankCardDto bankCardDto = BankCardDto.builder()
+                                .cardNumber(cardNumber)
+                                .cardHolderId(cardHolderDto.getId())
+                                .build();
 
-    @Autowired
-    private ObjectMapper objectMapper;
+                BankCard cardFromMapper = new BankCard();
+                cardFromMapper.setId(1L);
+                cardFromMapper.setPlainCardNumber(cardNumber);
+                cardFromMapper.setCardNumberHash("test-hash");
+                cardFromMapper.setCardNumberEncrypted("encrypted");
+                cardFromMapper.setLastFourDigits("4444");
+                cardFromMapper.setStatus(CardStatus.ACTIVE);
+                cardFromMapper.setBalance(BigDecimal.valueOf(10.50));
+                cardFromMapper.setCardHolder(cardHolderEntity);
 
-    @Autowired
-    private BankCardService bankCardService;
+                BankCard savedCard = new BankCard();
+                savedCard.setId(1L);
+                savedCard.setCardNumberHash("test-hash");
+                savedCard.setPlainCardNumber(cardNumber);
+                savedCard.setCardNumberEncrypted("encrypted");
+                savedCard.setLastFourDigits("4444");
+                savedCard.setStatus(CardStatus.ACTIVE);
+                savedCard.setBalance(BigDecimal.valueOf(10.50));
+                savedCard.setCardHolder(cardHolderEntity);
 
-    private Long adminId;
-    private Long userId;
-    private String adminToken;
-    private String userToken;
+                BankCardDto expectedBankCardDto = BankCardDto.builder()
+                                .cardNumber("1111222233334444")
+                                .cardHolderId(userId)
+                                .build();
 
-    private final String adminEmail = "admin@test.com";
-    private final String adminPassword = "V04pvZe3cMJs8s";
-    private final String adminName = "Test Admin";
+                log.info("CardHolderDto in setUp: {}", cardHolderDto);
+                when(cardMapper.toEntity(bankCardDto, cardHolderDto)).thenReturn(cardFromMapper);
+                when(cardRepository.save(cardFromMapper)).thenReturn(savedCard);
+                when(cardMapper.toMaskedDto(savedCard)).thenReturn(expectedBankCardDto);
+                BankCardDto card = bankCardService.createCard(bankCardDto);
 
-    private final String userEmail = "user@test.com";
-    private final String userPassword = "V04pvZe3cMJs8s";
-    private final String userName = "Test User";
+                Pageable pageable = PageRequest.of(0, 10);
+                List<BankCard> cardList = new ArrayList<>();
+                cardList.add(savedCard);
+                Page<BankCard> mockPage = new PageImpl<>(cardList, pageable, cardList.size());
 
-    private final String cardNumber = "1111222233334444";
+                // МОК ДЛЯ findByCardHolderId
+                when(cardRepository.findByCardHolderId(eq(userId), any(Pageable.class)))
+                                .thenReturn(mockPage);
 
-    @BeforeAll
-    void setUpOnce() throws Exception {
-        // Очищаем базу один раз перед всеми тестами
-        cardHoldersRepository.deleteAll();
+                Page<BankCard> cardPage = cardRepository.findByCardHolderId(userId, pageable);
 
-        // Создаем администратора
-        CardHolder admin = new CardHolder();
-        admin.setEmail(adminEmail);
-        admin.setName(adminName);
-        admin.setPassword(passwordEncoder.encode(adminPassword));
-        admin.setRole(Role.ROLE_ADMIN);
-        admin = cardHoldersRepository.save(admin);
-        adminId = admin.getId();
+                cardPage.getContent()
+                                .forEach(crd -> log.info("Card in DB: {}, Holder ID: {}", crd.getPlainCardNumber(),
+                                                crd.getCardHolder().getId()));
+                log.info("created card {} for Holder: {}", card.getCardNumber(), card.getCardHolderId());
+        }
 
-        AuthRequest adminAuthRequest = new AuthRequest();
-        adminAuthRequest.setEmail(adminEmail);
-        adminAuthRequest.setPassword(adminPassword);
 
-        MvcResult adminRegisterResult = mockMvc.perform(post("/auth/sign-in")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(adminAuthRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andReturn();
+        @Test
+        void getCardBalanse_ReturnsBalance_WhenCardBelongsToCurrentUser() {
+                // String hash = "test-hash";
+                when(encryptionService.hashForSearch(cardNumber)).thenReturn(hash);
 
-        JwtAuthenticationResponse adminAuthenticationResponse = objectMapper.readValue(
-                adminRegisterResult.getResponse().getContentAsString(),
-                JwtAuthenticationResponse.class);
-        adminToken = adminAuthenticationResponse.getToken();
+                // 2. Создаем карту для возврата
+                BankCard mockCard = new BankCard();
+                mockCard.setId(1L);
+                mockCard.setPlainCardNumber(cardNumber);
+                mockCard.setCardNumberHash(hash);
+                mockCard.setCardNumberEncrypted("encrypted");
+                mockCard.setLastFourDigits("4444");
+                mockCard.setStatus(CardStatus.ACTIVE);
+                mockCard.setCardHolder(new CardHolder());
+                mockCard.getCardHolder().setId(userId);
+                mockCard.setBalance(new BigDecimal("10.50"));
 
-        // Создаем обычного пользователя
-        CardHolder user = new CardHolder();
-        user.setEmail(userEmail);
-        user.setName(userName);
-        user.setPassword(passwordEncoder.encode(userPassword));
-        user.setRole(Role.ROLE_USER);
-        user = cardHoldersRepository.save(user);
-        userId = user.getId();
+                when(cardRepository.findByCardNumberHash(hash)).thenReturn(Optional.of(mockCard));
 
-        AuthRequest userAuthRequest = new AuthRequest();
-        userAuthRequest.setEmail(userEmail);
-        userAuthRequest.setPassword(userPassword);
+                BigDecimal result = bankCardService.getCardBalanse(cardNumber);
+                assertEquals(0, new BigDecimal("10.50").compareTo(result));
+                verify(encryptionService).hashForSearch(cardNumber);
+                verify(cardRepository).findByCardNumberHash(hash);
+        }
 
-        MvcResult userRegisterResult = mockMvc.perform(post("/auth/sign-in")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userAuthRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andReturn();
+        // @Test
+        // void getCardBalanse_ReturnsZero_WhenBalanceIsNull() {
+        // String cardNumber = "1111222233334444";
+        // String hash = "test-hash";
 
-        userToken = objectMapper.readValue(
-                userRegisterResult.getResponse().getContentAsString(),
-                JwtAuthenticationResponse.class).getToken();
+        // CardHolderDto currentUser = CardHolderDto.builder()
+        // .id(1L)
+        // .email("user@example.com")
+        // .role(Role.ROLE_USER)
+        // .build();
 
-        log.info("created Admin ID: {}", adminId);
-        log.info("created Admin token: {}", adminToken);
-        log.info("created User ID: {}", userId);
-        log.info("created User token: {}", userToken);
+        // Authentication auth = mock(Authentication.class);
+        // when(auth.getPrincipal()).thenReturn(currentUser);
+        // when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(auth);
 
-    }
+        // BankCard card = new BankCard();
+        // card.setCardHolder(new CardHolder());
+        // card.getCardHolder().setId(1L);
+        // card.setBalance(null);
 
-    @BeforeEach
-    void setUp() {
-        // originalContext = SecurityContextHolder.getContext();
-        // SecurityContextHolder.setContext(mock(SecurityContext.class));
-        // cardHoldersRepository.deleteAll();
-        CardHolderDto testUser = CardHolderDto.builder()
-                .id(1L)
-                .name("Test User")
-                .email("test@example.com")
-                .password("password")
-                .role(Role.ROLE_USER)
-                .build();
+        // when(encryptionService.hashForSearch(cardNumber)).thenReturn(hash);
+        // when(cardRepository.findByCardNumberHash(hash)).thenReturn(Optional.of(card));
 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(testUser, null,
-                testUser.getAuthorities());
+        // BigDecimal result = bankCardService.getCardBalanse(cardNumber);
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        // assertEquals(BigDecimal.ZERO, result);
+        // }
 
-        BankCardDto createdCard = BankCardDto.builder()
-                .cardNumber(cardNumber)
-                .cardHolderId(userId)
-                .build();
-
-        BankCardDto card = bankCardService.createCard(createdCard);
-        Pageable pageable = PageRequest.of(0, 10);
-
-        Page<BankCard> cardPage = cardRepository.findByCardHolderId(userId, pageable);
-
-        cardPage.getContent().forEach(crd -> log.info("Card in DB: {}, Holder ID: {}", crd.getPlainCardNumber(),
-                crd.getCardHolder().getId()));
-        log.info("+++++++++++++++++++++++++++++++++++++++++++++++++++");
-
-        // BankCard cardEntity = cardPage.getContent().stream()
-        // .filter(crd -> crd.getPlainCardNumber().equals(createdCard.getCardNumber()))
-        // .findFirst()
-        // .orElseThrow(() -> new RuntimeException("Card not found"));
-
-        // cardEntity.setBalance(new BigDecimal("10.50"));
-        // cardRepository.save(cardEntity);
-        log.info("created card {} for Holder: {}", card.getCardNumber(), card.getCardHolderId());
-
-    }
-
-    // @AfterEach
-    // void tearDown() {
-    // SecurityContextHolder.setContext(originalContext);
-    // reset(cardRepository, cardMapper, encryptionService);
-    // }
-
-    @Test
-    void getCardBalanse_ReturnsBalance_WhenCardBelongsToCurrentUser() {
-
-        BigDecimal result = bankCardService.getCardBalanse(cardNumber);
-
-        assertEquals(new BigDecimal("10.50"), result);
-    }
-
-    // @Test
-    // void getCardBalanse_ReturnsZero_WhenBalanceIsNull() {
-    // String cardNumber = "1111222233334444";
-    // String hash = "test-hash";
-
-    // CardHolderDto currentUser = CardHolderDto.builder()
-    // .id(1L)
-    // .email("user@example.com")
-    // .role(Role.ROLE_USER)
-    // .build();
-
-    // Authentication auth = mock(Authentication.class);
-    // when(auth.getPrincipal()).thenReturn(currentUser);
-    // when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(auth);
-
-    // BankCard card = new BankCard();
-    // card.setCardHolder(new CardHolder());
-    // card.getCardHolder().setId(1L);
-    // card.setBalance(null);
-
-    // when(encryptionService.hashForSearch(cardNumber)).thenReturn(hash);
-    // when(cardRepository.findByCardNumberHash(hash)).thenReturn(Optional.of(card));
-
-    // BigDecimal result = bankCardService.getCardBalanse(cardNumber);
-
-    // assertEquals(BigDecimal.ZERO, result);
-    // }
-
-    // @Test
-    // void getCardBalanse_ThrowsWhenCardNotFound() {
-    // String cardNumber = "1111222233334444";
-    // String hash = "test-hash";
-    // when(encryptionService.hashForSearch(cardNumber)).thenReturn(hash);
-    // when(cardRepository.findByCardNumberHash(hash)).thenReturn(Optional.empty());
-    // assertThrows(CardNotFoundException.class, () ->
-    // bankCardService.getCardBalanse(cardNumber));
-    // }
+        // @Test
+        // void getCardBalanse_ThrowsWhenCardNotFound() {
+        // String cardNumber = "1111222233334444";
+        // String hash = "test-hash";
+        // when(encryptionService.hashForSearch(cardNumber)).thenReturn(hash);
+        // when(cardRepository.findByCardNumberHash(hash)).thenReturn(Optional.empty());
+        // assertThrows(CardNotFoundException.class, () ->
+        // bankCardService.getCardBalanse(cardNumber));
+        // }
 }

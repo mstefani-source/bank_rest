@@ -21,12 +21,7 @@ import java.math.BigDecimal;
 public class CardMapper {
 
     private final EncryptionService encryptionService;
-    private final CardHolderRepository cardHoldersRepository;
 
-    /**
-     * Преобразует Entity в DTO (для ответа клиенту)
-     * Использует текущего аутентифицированного пользователя
-     */
     public BankCardDto toDto(BankCard card) {
         if (card == null) {
             return null;
@@ -34,23 +29,23 @@ public class CardMapper {
 
         return BankCardDto.builder()
             .cardNumber(formatMaskedCardNumber(card.getLastFourDigits()))
-            .cardHolderId(getCurrentUserId()) // Получаем ID текущего пользователя
+            .cardHolderId(getCurrentUserId())
             .build();
     }
 
-    /**
-     * Преобразует DTO в Entity с указанным владельцем
-     */
-    public BankCard toEntity(BankCardDto dto) { //, CardHolderDto cardHolderDto) {
+
+    public BankCard toEntity(BankCardDto dto, CardHolderDto cardHolderDto) {
+
+        log.info("Mapping BankCardDto to Entity {}, {}", dto, cardHolderDto);
         if (dto == null) {
             return null;
         }
 
         try {
             BankCard card = new BankCard();
-            
-            // Очищаем номер карты
             String cleanCardNumber = cleanCardNumber(dto.getCardNumber());
+            log.info("Mapping BankCardDto to Entity for user: {}. Clean card number: {}", 
+                cardHolderDto.getUsername(), cleanCardNumber);
             
             // Валидация
             if (!isValidCardNumber(cleanCardNumber)) {
@@ -58,17 +53,18 @@ public class CardMapper {
             }
             
             // Устанавливаем поля
+            log.debug("Setting card fields for user: {}. Card number: {}", 
+                cardHolderDto.getUsername(), cleanCardNumber);
             card.setPlainCardNumber(cleanCardNumber);
             card.setCardNumberHash(encryptionService.hashForSearch(cleanCardNumber));
             card.setCardNumberEncrypted(encryptionService.encrypt(cleanCardNumber));
             card.setLastFourDigits(extractLastFour(cleanCardNumber));
-            
-            // Устанавливаем статус и баланс по умолчанию
             card.setStatus(CardStatus.ACTIVE);
             card.setBalance(BigDecimal.ZERO);
             
-            // проверяем есть ли такой CardHolder через отдельное поле/таблицу
-            CardHolder cardHolder = cardHoldersRepository.findById(dto.getCardHolderId()).orElseThrow(()-> new CardHolderException(dto.getCardHolderId()));
+            CardHolderMapper cardHolderMapper = new CardHolderMapper();
+            CardHolder cardHolder = cardHolderMapper.toEntity(cardHolderDto);
+
             card.setCardHolder(cardHolder);
             
             log.debug("Mapped card for user: {}. Last four: {}", 
@@ -81,17 +77,6 @@ public class CardMapper {
             throw new RuntimeException("Failed to map bank card", e);
         }
     }
-
-    /**
-     * Преобразует DTO в Entity (использует текущего пользователя из SecurityContext)
-     */
-    // public BankCard toEntity(BankCardDto dto) {
-    //     CardHolderDto currentUser = getCurrentUser();
-    //     if (currentUser == null) {
-    //         throw new IllegalStateException("No authenticated user found");
-    //     }
-    //     return toEntity(dto, currentUser);
-    // }
 
     /**
      * Создает DTO с маскированным номером для безопасного отображения

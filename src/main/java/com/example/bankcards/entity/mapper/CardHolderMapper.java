@@ -56,6 +56,20 @@ public class CardHolderMapper {
         return cardHolder;
     }
 
+    public CardHolderDto fromEntityToDto(CardHolder cardHolder) {
+        if (cardHolder == null) {
+            return null;
+        }
+
+        return CardHolderDto.builder()
+                .id(cardHolder.getId())
+                .name(cardHolder.getName())
+                .email(cardHolder.getEmail())
+                .password(cardHolder.getPassword())
+                .role(cardHolder.getRole())
+                .build();
+    }
+
     // public CardHolderDto toUserDetails(CardHolderResponseDto entity) {
     // if (entity == null) {
     // return null;

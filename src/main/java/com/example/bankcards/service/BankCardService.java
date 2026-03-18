@@ -14,11 +14,15 @@ import com.example.bankcards.dto.BankCardDto;
 import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.BankCard;
+import com.example.bankcards.entity.CardHolder;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.entity.enums.Role;
+import com.example.bankcards.entity.mapper.CardHolderMapper;
 import com.example.bankcards.entity.mapper.CardMapper;
+import com.example.bankcards.exception.CardHolderException;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.InsufficientFundsException;
+import com.example.bankcards.repository.CardHolderRepository;
 import com.example.bankcards.repository.CardRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -30,19 +34,29 @@ import lombok.extern.slf4j.Slf4j;
 public class BankCardService {
 
     private final CardRepository cardRepository;
+    private final CardHolderRepository cardHoldersRepository;
     private final CardMapper cardMapper;
     private final EncryptionService encryptionService;
+    private final CardHolderMapper cardHolderMapper;
 
     @Transactional
     public BankCardDto createCard(BankCardDto request) {
+        log.info("Creating card for cardHolder ID: {}", request.getCardHolderId());
 
- 
-        BankCard card = cardMapper.toEntity(request);
+        CardHolder cardHolder = cardHoldersRepository.findById(request.getCardHolderId())
+                .orElseThrow(() -> new CardHolderException(request.getCardHolderId()));
+        CardHolderDto cardHolderDto = cardHolderMapper.fromEntityToDto(cardHolder);
+
+        BankCard card = cardMapper.toEntity(request, cardHolderDto);
+
+        if (card == null) {
+            log.error("Card mapper returned null for request: {}", request);
+            throw new IllegalStateException("Card mapper returned null");
+        }
+
         BankCard savedCard = cardRepository.save(card);
-
         log.info("Card created for user: {}, last four: {}",
                 getCurrentUsername(), savedCard.getLastFourDigits());
-
         return cardMapper.toMaskedDto(savedCard);
     }
 
@@ -102,8 +116,7 @@ public class BankCardService {
             } else {
                 cardPage = cardRepository.findAll(pageable);
             }
-        }
-        else {
+        } else {
             cardPage = cardRepository.findByCardHolderId(currentUser.getId(), pageable);
         }
 
@@ -203,6 +216,7 @@ public class BankCardService {
         cardRepository.save(fromCard);
         cardRepository.save(toCard);
 
-        log.info("Transfer {} from card {} to card {} for user {}", amount, fromCard.getLastFourDigits(), toCard.getLastFourDigits(), getCurrentUsername());
+        log.info("Transfer {} from card {} to card {} for user {}", amount, fromCard.getLastFourDigits(),
+                toCard.getLastFourDigits(), getCurrentUsername());
     }
 }
