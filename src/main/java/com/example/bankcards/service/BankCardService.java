@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.bankcards.dto.BankCardDto;
+import com.example.bankcards.dto.BankCardResponseDto;
 import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.BankCard;
@@ -104,29 +105,27 @@ public class BankCardService {
                 getCurrentUsername(), card.getLastFourDigits());
     }
 
-    public Page<BankCardDto> getCardsWithAccessCheck(Long cardHolderId, Pageable pageable) {
+    public Page<BankCardResponseDto> getCardsWithAccessCheck(Pageable pageable) {
 
         CardHolderDto currentUser = getCurrentUser();
 
         Page<BankCard> cardPage;
 
         if (currentUser.getRole() == Role.ROLE_ADMIN) {
-            if (cardHolderId != null) {
-                cardPage = cardRepository.findByCardHolderId(cardHolderId, pageable);
-            } else {
-                cardPage = cardRepository.findAll(pageable);
-            }
+            cardPage = cardRepository.findAll(pageable);
+            return cardPage.map(card -> {
+                BankCardResponseDto dto = cardMapper.toMaskedAdminRespDto(card);
+                return dto;
+            });
         } else {
             cardPage = cardRepository.findByCardHolderId(currentUser.getId(), pageable);
         }
 
         return cardPage.map(card -> {
-            BankCardDto dto = cardMapper.toMaskedDto(card);
+            BankCardResponseDto dto = cardMapper.toMaskedRespDto(card);
             return dto;
         });
     }
-
-    // Вспомогательные методы
 
     private CardHolderDto getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -1,6 +1,7 @@
 package com.example.bankcards.entity.mapper;
 
 import com.example.bankcards.dto.BankCardDto;
+import com.example.bankcards.dto.BankCardResponseDto;
 import com.example.bankcards.dto.CardHolderDto;
 import com.example.bankcards.entity.BankCard;
 import com.example.bankcards.entity.CardHolder;
@@ -91,6 +92,27 @@ public class CardMapper {
             .cardHolderId(card.getCardHolder().getId())
             .build();
     }
+
+    public BankCardResponseDto toMaskedRespDto(BankCard card) {
+        if (card == null) {
+            return null;
+        }
+
+        return BankCardResponseDto.builder()
+            .cardNumber(formatMaskedCardNumber(card.getLastFourDigits()))
+            .build();
+    }
+
+      public BankCardResponseDto toMaskedAdminRespDto(BankCard card) {
+        if (card == null) {
+            return null;
+        }
+
+        return BankCardResponseDto.builder()
+            .cardNumber(formatMaskedCardNumber(card.getLastFourDigits()))
+            .cardHolderId(card.getCardHolder().getId())
+            .build();
+    }  
 
     /**
      * Создает DTO с полным номером (только для внутреннего использования!)

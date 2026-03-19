@@ -7,19 +7,25 @@
 #   - Настроить параметры безопасности и JWT.
 #   - Включить Swagger UI.
 
-
 spring:
+  main:
+    allow-bean-definition-overriding: true
+
   liquibase:
     change-log: classpath:db/migration/db.changelog-master.xml
 
   application:
     name: bankrest
-  
+
   datasource:
     url: jdbc:postgresql://localhost:5432/bankrest
     username: bankrest
     password: bankrest
 
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    default-property-inclusion: ALWAYS
 
 server:
   port: 8080

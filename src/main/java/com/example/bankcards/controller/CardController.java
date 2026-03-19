@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import com.example.bankcards.dto.BankCardDto;
+import com.example.bankcards.dto.BankCardResponseDto;
 import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.service.BankCardService;
 
@@ -61,14 +62,14 @@ public class CardController {
         return ResponseEntity.ok(cardService.getCardBalanse(cardNumber));
     }
 
-    @GetMapping("/{cardHolderId}/cards")
+    @GetMapping("/my/cards")
     @Operation(summary = "Получение списка карт для держателя с учетом прав доступа")
-    public ResponseEntity<Page<BankCardDto>> getCards(
-            @RequestParam(required = false) Long cardHolderId, Pageable pageable) {
-        return ResponseEntity.ok(cardService.getCardsWithAccessCheck(cardHolderId, pageable));
+    public ResponseEntity<Page<BankCardResponseDto>> getCards(Pageable pageable) {
+                Page<BankCardResponseDto> page = cardService.getCardsWithAccessCheck(pageable);
+        return ResponseEntity.ok(page);
     }
 
-    @PostMapping("/{cardHolderId}/cards")
+    @PostMapping("/my/cards")
     @Operation(summary = "Перевод между своими картами")
     public ResponseEntity<String> transferBetweenOwnCards(@Valid @RequestBody TransferRequest request) {
         cardService.transfer(request);
