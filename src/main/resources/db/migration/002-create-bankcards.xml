@@ -13,37 +13,30 @@
         </preConditions>
         
         <createTable tableName="bankcards">
-            <!-- ID -->
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             
-            <!-- Хэш номера карты (для поиска) -->
             <column name="hash" type="VARCHAR(255)">
                 <constraints unique="true" nullable="false"/>
             </column>
             
-            <!-- Зашифрованный номер карты -->
             <column name="encrypted" type="TEXT">
                 <constraints nullable="false"/>
             </column>
             
-            <!-- Последние 4 цифры (для отображения) -->
             <column name="lastdigits" type="VARCHAR(4)">
                 <constraints nullable="false"/>
             </column>
             
-            <!-- Статус карты -->
             <column name="status" type="VARCHAR(50)" defaultValue="ACTIVE">
                 <constraints nullable="false"/>
             </column>
             
-            <!-- Баланс -->
             <column name="balance" type="DECIMAL(19,2)" defaultValueNumeric="0.00">
                 <constraints nullable="false"/>
             </column>
             
-            <!-- Связь с владельцем -->
             <column name="card_holder_id" type="BIGINT">
                 <constraints nullable="false" 
                            foreignKeyName="fk_bankcards_card_holder"
@@ -51,12 +44,10 @@
                            referencedColumnNames="id"/>
             </column>
             
-            <!-- Временные метки -->
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
         
-        <!-- Индексы для быстрого поиска -->
         <createIndex indexName="idx_bankcards_hash" tableName="bankcards">
             <column name="hash"/>
         </createIndex>
