@@ -2,8 +2,6 @@ package com.example.bankcards.security;
 
 import com.example.bankcards.dto.AuthRequest;
 import com.example.bankcards.dto.BankCardDto;
-import com.example.bankcards.dto.CardHolderResponseDto;
-import com.example.bankcards.dto.RegistrationRequest;
 import com.example.bankcards.entity.CardHolder;
 import com.example.bankcards.entity.enums.Role;
 import com.example.bankcards.repository.CardHolderRepository;
@@ -21,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -67,62 +64,49 @@ public class JwtAuthenticationFlowTest {
 
         @Test
         void fullJwtFlow_ShouldWork() throws Exception {
-                // Шаг 1: Регистрация нового пользователя
-                RegistrationRequest registerRequest = new RegistrationRequest();
-                registerRequest.setEmail(testEmail);
-                registerRequest.setPassword(testPassword);
-                registerRequest.setName(testName);
 
-                MvcResult registerResult = mockMvc.perform(post("/auth/sign-up")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(registerRequest)))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.token").exists())
-                                .andReturn();
-
-                // Получаем токен пользователя из ответа регистрации
-                JwtAuthenticationResponse registerResponse = objectMapper.readValue(
-                                registerResult.getResponse().getContentAsString(),
-                                JwtAuthenticationResponse.class);
-                String userRegistrationToken = registerResponse.getToken();
-
-                // Сохраняем ID нового пользователя для дальнейших тестов
-                CardHolderResponseDto registeredUser = cardHolderService.findByEmail(testEmail);
-                testUserId = registeredUser.getId();
-
-                // Проверяем, что токен не пустой
-                assertThat(userRegistrationToken).isNotEmpty();
+                // Шаг 1: Аутентификация пользователя admin
 
                 AuthRequest adminAuthRequest = new AuthRequest();
                 adminAuthRequest.setEmail(amdinEmail);
                 adminAuthRequest.setPassword(adminPassword);
 
-                MvcResult adminRegisterResult = mockMvc.perform(post("/auth/sign-in")
+                MvcResult adminAuthResult = mockMvc.perform(post("/auth/sign-in")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(adminAuthRequest)))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.token").exists())
                                 .andReturn();
 
-                JwtAuthenticationResponse adminRegisterResponse = objectMapper.readValue(
-                                adminRegisterResult.getResponse().getContentAsString(),
+                JwtAuthenticationResponse adminAuthResponse = objectMapper.readValue(
+                                adminAuthResult.getResponse().getContentAsString(),
                                 JwtAuthenticationResponse.class);
-                String adminRegistrationToken = adminRegisterResponse.getToken();
+                String adminAuthToken = adminAuthResponse.getToken();
 
                 // Шаг 2: Используем токен для доступа к защищенному эндпоинту
-                // Создаем карту для тестового пользователя, используя админский токен
+
+                // Создаем тестового пользователя для аутентификации
+                CardHolder testUser = new CardHolder();
+                testUser.setEmail(testEmail);
+                testUser.setName(testName);
+                testUser.setPassword(passwordEncoder.encode(testPassword));
+                CardHolder savedUser = cardHoldersRepository.save(testUser);
+                testUserId = savedUser.getId();
+
+                // Шаг 3: Создаем карту для тестового пользователя, используя админский токен
+
                 BankCardDto cardDto = BankCardDto.builder()
                                 .cardNumber("1111222233334444")
-                                .cardHolderId(testUserId) // ID должен существовать
+                                .cardHolderId(testUserId)
                                 .build();
 
                 mockMvc.perform(post("/api/v1/cards")
-                                .header("Authorization", "Bearer " + adminRegistrationToken)
+                                .header("Authorization", "Bearer " + adminAuthToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(cardDto)))
                                 .andExpect(status().isCreated());
 
-                // Шаг 3: Аутентификация User'a (логин)
+                // Шаг 4: Аутентификация User'a (логин)
                 AuthRequest userAuthRequest = new AuthRequest();
                 userAuthRequest.setEmail(testEmail);
                 userAuthRequest.setPassword(testPassword);
@@ -141,7 +125,7 @@ public class JwtAuthenticationFlowTest {
                 String userLoginToken = authResponse.getToken();
 
                 // Шаг 4: Используем новый токен для доступа к картам пользователя
-                mockMvc.perform(get("/api/v1/{testUserId}/cards", testUserId)
+                mockMvc.perform(get("/api/v1/my/cards", testUserId)
                                 .header("Authorization", "Bearer " + userLoginToken)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk());

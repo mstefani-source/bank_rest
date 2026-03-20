@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.bankcards.dto.AuthRequest;
-import com.example.bankcards.dto.RegistrationRequest;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -15,12 +15,6 @@ import com.example.bankcards.dto.RegistrationRequest;
 @Tag(name = "Аутентификация")
 public class AuthController {
     private final AuthenticationService authenticationService;
-
-    @Operation(summary = "Регистрация пользователя")
-    @PostMapping("/sign-up")
-    public JwtAuthenticationResponse signUp(@RequestBody @Valid RegistrationRequest request) {
-        return authenticationService.signUp(request);
-    }
 
     @Operation(summary = "Авторизация пользователя")
     @PostMapping("/sign-in")

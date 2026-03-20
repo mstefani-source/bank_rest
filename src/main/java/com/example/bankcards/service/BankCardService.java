@@ -94,13 +94,11 @@ public class BankCardService {
     @Transactional
     public void deleteCard(String cardNumber) {
         String searchHash = encryptionService.hashForSearch(cardNumber);
-
         BankCard card = cardRepository.findByCardNumberHash(searchHash)
                 .orElseThrow(() -> new CardNotFoundException("Card not found"));
 
         checkCardOwnership(card);
         card.setStatus(CardStatus.BLOCKED);
-
         log.info("Card blocked for user: {}, last four: {}",
                 getCurrentUsername(), card.getLastFourDigits());
     }
