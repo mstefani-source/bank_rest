@@ -49,9 +49,9 @@ public class CardController {
         return cardService.createCard(cardDto);
     }
 
-    @Operation(summary = "Удаление банковской карты по номеру")
+    @Operation(summary = "Блокировка банковской карты по номеру")
     @DeleteMapping("/cards/{cardNumber}")
-    public ResponseEntity<Void> deleteCard(@PathVariable String cardNumber) {
+    public ResponseEntity<Void> blockCard(@PathVariable String cardNumber) {
         cardService.deleteCard(cardNumber);
         return ResponseEntity.noContent().build();
     }
@@ -75,4 +75,12 @@ public class CardController {
         cardService.transfer(request);
         return ResponseEntity.ok("Перевод успешно выполнен");
     }
+
+    @Operation(summary = "Блокировка банковской карты по номеру")
+    @DeleteMapping("/my/cards/{cardNumber}")
+    public ResponseEntity<Void> blockMyCard(@PathVariable String cardNumber) {
+        cardService.deleteCard(cardNumber);
+        return ResponseEntity.noContent().build();
+    }
+
 }
