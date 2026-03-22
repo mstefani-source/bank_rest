@@ -103,24 +103,19 @@ public class BankCardService {
                 getCurrentUsername(), card.getLastFourDigits());
     }
 
+    @Transactional(readOnly = true)
     public Page<BankCardResponseDto> getCardsWithAccessCheck(Pageable pageable) {
-
         CardHolderDto currentUser = getCurrentUser();
+        log.debug("Fetching cards for user: {} with role: {}", currentUser.getUsername(), currentUser.getRole());
 
-        Page<BankCard> cardPage;
-
-        if (currentUser.getRole() == Role.ROLE_ADMIN) {
-            cardPage = cardRepository.findAll(pageable);
-            return cardPage.map(card -> {
-                BankCardResponseDto dto = cardMapper.toMaskedAdminRespDto(card);
-                return dto;
-            });
-        } else {
-            cardPage = cardRepository.findByCardHolderId(currentUser.getId(), pageable);
-        }
+        Page<BankCard> cardPage = (currentUser.getRole() == Role.ROLE_ADMIN)
+            ? cardRepository.findAll(pageable)
+            : cardRepository.findByCardHolderId(currentUser.getId(), pageable);
 
         return cardPage.map(card -> {
-            BankCardResponseDto dto = cardMapper.toMaskedRespDto(card);
+            BankCardResponseDto dto = (currentUser.getRole() == Role.ROLE_ADMIN)
+                ? cardMapper.toMaskedAdminRespDto(card)
+                : cardMapper.toMaskedRespDto(card);
             return dto;
         });
     }

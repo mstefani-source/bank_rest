@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -28,11 +30,11 @@ public class CardHolderService {
         this.cardHolderMapper = cardHolderMapper;
     }
 
+    @Transactional
     public CardHolderResponseDto createCardHolder(CardHolderRequestDto cardHolderRequestDto) {
-
+        log.info("Creating card holder: {}", cardHolderRequestDto.getEmail());
         CardHolder cardHolder = cardHolderMapper.ToEntity(cardHolderRequestDto);
         CardHolder savedCardHolder = cardHoldersRepository.save(cardHolder);
-
         return cardHolderMapper.ToDto(savedCardHolder);
     }
 
